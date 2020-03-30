@@ -1,3 +1,4 @@
+import louis_globals as glob
 from app import App
 from characters import *
 

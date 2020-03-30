@@ -1,4 +1,5 @@
 #! /usr/bin/python3
+import louis_globals as glob
 import time
 from arduino import Arduino
 from cell import Cell
@@ -21,12 +22,13 @@ def discover():
     return arduino, cells
 
 def main_menu(arduino, cells, audio):
-    audio.speak("You can now open any application using voice commands.")
+    audio.speak(text="You can now open any application using voice commands.", name="main_open_apps")
     while (True):
         print("Listening ...")
+        return
         response = audio.recognize_speech()
         if response["transcription"] != "":
-            before_keyword, keyword, app_name = response["transcription"].partition("open")
+            _, _, app_name = response["transcription"].partition("open")
             if app_name != '': # found command 'open'
                 open_app(app_name, cells, audio, arduino)
 
@@ -46,7 +48,8 @@ def open_app(app_name, cells, audio, arduino):
         current_app = Memory("Memory",cells,audio,arduino)
 
     if current_app is not None:
-        audio.speak("Opening the application " + app_name)
+        audio.speak(text="Opening the application", name="main_open_app")
+        audio.speak(text=app_name, name=("app_"+app_name))
         current_app.on_start()
     else:
-        audio.speak("I did not recognize the app. Could you try to open the app again?")
+        audio.speak(text="I did not recognize the app. Could you try to open the app again?", name="main_recognize_app")

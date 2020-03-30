@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<div id="app">
+    <button id="btn">Start louis</button>
+</div>
+
+<div id="response"></div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+<script type="text/javascript">
+$('button#btn').click(function(){
+    $.ajax({
+        url: "/_get_data/",
+        type: "POST",
+        success: function(resp){
+            $("div#response").append(resp.data);
+        }
+    });
+});
+</script>
+</body>
+</html>

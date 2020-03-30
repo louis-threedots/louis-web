@@ -1,4 +1,5 @@
 #! /usr/bin/python3
+import louis_globals as glob
 import time
 import characters
 

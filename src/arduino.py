@@ -1,9 +1,11 @@
+import louis_globals as glob
 class Arduino:
 
     def __init__(self):
         self.main_cell = 'comp'
 
     def discover(self):
+        return 4
         return int(input("number of cells? "))
 
     def run_to_rel_pos(self, rel_angle, cell_index):

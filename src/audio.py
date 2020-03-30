@@ -1,4 +1,4 @@
-import hashlib
+import louis_globals as glob
 import os
 import subprocess
 
@@ -7,29 +7,30 @@ output_audio = True
 class Audio():
 
     def __init__(self):
-        self.cache_dir = os.path.join(os.path.dirname(__file__), 'cache')
-        if not os.path.exists(self.cache_dir):
-            os.makedirs(self.cache_dir)
+        # conversion from Google Drive sharing URL to Google Drive Direct Link: https://www.wonderplugin.com/online-tools/google-drive-direct-link-generator/
+        self.audioFiles = {# name: direct link
+            "main_welcome": "https://drive.google.com/uc?export=download&id=1VTikh68z4lV72lxrG-0Gj_RJlOMOdYYh",
+            "main_open_apps": "https://drive.google.com/uc?export=download&id=1FQ9uJKHhu2l9n_60IPANWguzP78wnMSn"
+        }
 
-    def speak(self, text):
-        if output_audio:
-            hash_object = hashlib.md5(text.encode())
-            filename = os.path.join(self.cache_dir, hash_object.hexdigest()+".mp3")
-            filename = os.path.join(self.cache_dir, "welcome.mp3")
-            if not(os.path.isfile(filename)):
-                print('not recorded yet')
-            print("speaking")
-            self.playsound(filename)
-            print("speaking done")
-
+    def speak(self, text="", name=""):
+        
         print('------ AUDIO OUTPUT ------')
-        print(text)
+        glob.cust_print(text)
         print('--------------------------')
+
+        if output_audio:
+            if name not in self.audioFiles:
+                glob.cust_print('(There is no audio recording yet.)')
+            else:
+                print("speaking")
+                self.playsound(self.audioFiles[name])
+                print("speaking done")
+
         return text
 
 
-    def playsound(self, filename):
-        # subprocess.Popen(['mpg123', '-q', filename]).wait()
+    def playsound(self, filesrc):
         audioDiv = ("""
             <div id="audioDiv">
             <audio controls>
@@ -37,7 +38,8 @@ class Audio():
                 <p>Your browser doesn't support HTML5 audio. Here is a <a id="audioLink" href="{}">link to the audio</a> instead.</p>
             </audio>
             </div>
-        """.format(filename, filename))
+        """.format(filesrc, filesrc))
+        glob.cust_print(audioDiv)
         return audioDiv
 
     def recognize_speech(self, keywords = []):

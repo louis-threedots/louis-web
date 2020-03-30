@@ -1,3 +1,4 @@
+import louis_globals as glob
 from characters import *
 import random
 from app import App

@@ -1,3 +1,4 @@
+import louis_globals as glob
 from abc import ABC, abstractmethod
 import os
 import json
@@ -23,7 +24,7 @@ class App(ABC):
 
     def on_quit(self):
         # Actions that an app wants to perform when quitting the app
-        self.audio.speak("The app will now close itself. Goodbye.")
+        self.audio.speak(text="The app will now close itself. Goodbye.", name="app_close")
         self.save_settings()
         self.reset_cells()
         # return to main thread
@@ -31,13 +32,13 @@ class App(ABC):
         main_menu(self.arduino, self.cells, self.audio)
 
     def confirm_quit(self):
-        self.audio.speak("Would you like to quit this application?")
+        self.audio.speak(text="Would you like to quit this application?", name="app_confirm_quit")
         response = self.await_response(["yes","no"])
         # take answer from the user
         if response == "yes":
             self.on_quit()
         elif response == "no":
-            self.audio.speak("You're returning to the app.")
+            self.audio.speak(text="You're returning to the app.", name="app_return")
 
     def reset_cells(self, to='zero'):
         for cell in reversed(self.cells):
@@ -60,12 +61,14 @@ class App(ABC):
             f.write(json.dumps(self.settings, indent=4))
 
     def app_instruction(self, instruction):
-        self.audio.speak("Would you like to listen to an instruction for this application?")
+        self.audio.speak(text="Would you like to listen to an instruction for this application?", name="app_confirm_instruction")
         response = self.await_response(['yes','no'])
         if response == "yes":
-            self.audio.speak("Welcome to " + self.name + ". " + instruction)
+            self.audio.speak(text="Welcome to", name="app_welcome")
+            self.audio.speak(text=self.name, name=("app_"+self.name))
+            self.audio.speak(text=instruction, name=("app_"+self.name+"_instruction"))
         elif response == "no":
-            self.audio.speak("skipping instruction")
+            self.audio.speak(text="Skipping instruction.", name="app_skip_instruction")
 
     def get_pressed_button(self):
         # Returns the index of the pressed cell button
@@ -136,18 +139,19 @@ class App(ABC):
             middle_row = middle_row + '|' + dots_print[dots[1]] + ' ' + dots_print[dots[4]] + '|' + (' ' * extra_padding)
             bottom_row = bottom_row + '|' + dots_print[dots[2]] + ' ' + dots_print[dots[5]] + '|' + (' ' * extra_padding)
 
-        print(top_row)
-        print(middle_row)
-        print(bottom_row)
-        print(character_row)
+        glob.cust_print(top_row)
+        glob.cust_print(middle_row)
+        glob.cust_print(bottom_row)
+        glob.cust_print(character_row)
 
     def await_response(self, desired_responses = []):
         answer = self.audio.recognize_speech()["transcription"]
         invalid = True
 
         if answer.find("options") != -1:
-            desired_response_string = str(desired_responses).strip('[]')
-            self.audio.speak("Your options are: " + desired_response_string + '.')
+            self.audio.speak(text="Your options are:", name="app_options")
+            for option in desired_responses:
+                self.audio.speak(text="- "+option, name=("app_option_"+option))
             invalid = False
         # quit / exit command listener
         elif answer.find('quit') != -1 or answer.find('exit') != -1:
@@ -164,7 +168,7 @@ class App(ABC):
                     return response
 
         if invalid:
-            self.audio.speak("Invalid option, please try again.")
+            self.audio.speak(text="Invalid option, please try again.", name="app_option_invalid")
 
         response = self.await_response(desired_responses)
         return response
