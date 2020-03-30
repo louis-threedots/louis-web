@@ -2,7 +2,8 @@ from app import App
 from arduino import Arduino
 from cell import Cell
 from audio import Audio
-import feedparser
+import xml.etree.ElementTree as ET
+import urllib.request
 
 class Headlines(App):
 
@@ -17,20 +18,20 @@ class Headlines(App):
         "world":"world"
     }
 
-    def show_headlines(self,category, ptr):
+    def show_headlines(self, category, ptr):
 
         article_ptr = ptr
         options = ["next","back","more","again","home"]
         #instructions = "Say \"next\" or \"back\" to go to the next or the previous article, \"more\" if you would like to read more, \"again\" to read the headline again and \"home\" to return to the beginning."
-        #Get RSS feed given catagory
-        feed = feedparser.parse("http://newsrss.bbc.co.uk/rss/newsonline_uk_edition/"+category+"/rss.xml")
-
-        article_list = feed.entries
+        #Get RSS feed given category -> TODO: url requests need to be handled by JS
+        feed = ET.parse(urllib.request.urlopen("http://newsrss.bbc.co.uk/rss/newsonline_uk_edition/"+category+"/rss.xml"))
+        root = feed.getroot()
+        article_list = list(root.iter("item"))
 
         show = True
         while True:
             if show:
-                self.print_text(article_list[article_ptr].title)
+                self.print_text(article_list[article_ptr].find('title').text)
             response = self.await_response(options)
             if response == "next":
                 if article_ptr + 1 > len(article_list):
@@ -49,8 +50,7 @@ class Headlines(App):
                     show = True
 
             elif response == "more":
-                self.print_text(article_list[article_ptr].summary)
-                #print(article_list[article_ptr].summary)
+                self.print_text(article_list[article_ptr].find('description').text)
                 show = False
 
             elif response == "again":

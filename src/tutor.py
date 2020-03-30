@@ -5,9 +5,6 @@ from app import App
 class Tutor(App):
 
     def on_start(self):
-        # todo: to be implemented shortly
-        #self.audio.start_background_listening('stop')
-
         # instruction when app started, skip when user says skip
         self.app_instruction("""
             The purpose of this application is to test how much you have learnt from Learn. Let's start testing.
