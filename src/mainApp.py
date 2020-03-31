@@ -21,7 +21,7 @@ class MainApp(App):
     def on_start(self):
         self.audio = Audio()
         self.arduino, self.cells = self.discover()
-        self.audio.speak(text="Welcome to Louis the brailliant assistant.", name="main_welcome")
+        self.audio.speak("Welcome to Louis the brailliant assistant.")
         self.main_menu()
     
     def on_quit(self):
@@ -37,7 +37,7 @@ class MainApp(App):
         return arduino, cells
 
     def main_menu(self):
-        glob.mainApp.audio.speak(text="You can now open any application using voice commands.", name="main_open_apps")
+        glob.mainApp.audio.speak("You can now open any application using voice commands.")
         print("Listening ...")
         response = self.await_response(["open "+appname for appname in self.apps])
         _, _, app_name = response.partition("open")
@@ -59,8 +59,8 @@ class MainApp(App):
             current_app = Memory("Memory")
 
         if current_app is not None:
-            glob.mainApp.audio.speak(text="Opening the application", name="main_open_app")
-            glob.mainApp.audio.speak(text=app_name, name=("app_"+app_name))
+            glob.mainApp.audio.speak("Opening the application")
+            glob.mainApp.audio.speak(app_name)
             current_app.on_start()
         else: # shouldn't occur
-            glob.mainApp.audio.speak(text="I did not recognize the app. Could you try to open the app again?", name="main_recognize_app")
+            glob.mainApp.audio.speak("I did not recognize the app. Could you try to open the app again?")

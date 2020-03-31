@@ -1,4 +1,5 @@
 from mainApp import MainApp
+
 run_flask = False
 
 printOutput = ""

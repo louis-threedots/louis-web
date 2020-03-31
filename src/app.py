@@ -21,7 +21,7 @@ class App(ABC):
 
     def on_quit(self):
         # Actions that an app wants to perform when quitting the app
-        glob.mainApp.audio.speak(text="The app will now close itself. Goodbye.", name="app_close")
+        glob.mainApp.audio.speak("The app will now close itself. Goodbye.")
         self.save_settings()
         self.reset_cells()
         # return to main thread
@@ -31,13 +31,13 @@ class App(ABC):
         text = "Would you like to quit this application?"
         if not hasattr(self, 'name'): # main app doesn't
             text = "Would you like to quit louis?"
-        glob.mainApp.audio.speak(text=text, name="app_confirm_quit")
+        glob.mainApp.audio.speak(text)
         response = self.await_response(["yes","no"])
         # take answer from the user
         if response == "yes":
             self.on_quit()
         elif response == "no":
-            glob.mainApp.audio.speak(text="You're returning to the app.", name="app_return")
+            glob.mainApp.audio.speak("You're returning to the app.")
 
     def reset_cells(self, to='zero'):
         for cell in reversed(glob.mainApp.cells):
@@ -60,14 +60,14 @@ class App(ABC):
             f.write(json.dumps(self.settings, indent=4))
 
     def app_instruction(self, instruction):
-        glob.mainApp.audio.speak(text="Would you like to listen to an instruction for this application?", name="app_confirm_instruction")
+        glob.mainApp.audio.speak("Would you like to listen to an instruction for this application?")
         response = self.await_response(['yes','no'])
         if response == "yes":
-            glob.mainApp.audio.speak(text="Welcome to", name="app_welcome")
-            glob.mainApp.audio.speak(text=self.name, name=("app_"+self.name))
-            glob.mainApp.audio.speak(text=instruction, name=("app_"+self.name+"_instruction"))
+            glob.mainApp.audio.speak("Welcome to")
+            glob.mainApp.audio.speak(self.name)
+            glob.mainApp.audio.speak(instruction)
         elif response == "no":
-            glob.mainApp.audio.speak(text="Skipping instruction.", name="app_skip_instruction")
+            glob.mainApp.audio.speak("Skipping instruction.")
 
     def get_pressed_button(self):
         # Returns the index of the pressed cell button
@@ -84,6 +84,7 @@ class App(ABC):
         for cell in reversed(glob.mainApp.cells):
             cell.print_character(c)
         self.wait_for_all_cells_finished()
+        self.print_cells_to_terminal()
 
     def print_text(self, text):
         prepared_text = []
@@ -147,9 +148,9 @@ class App(ABC):
         invalid = True
 
         if answer.find("options") != -1:
-            glob.mainApp.audio.speak(text="Your options are:", name="app_options")
+            glob.mainApp.audio.speak("Your options are:")
             for option in desired_responses:
-                glob.mainApp.audio.speak(text="- "+option, name=("app_option_"+option))
+                glob.mainApp.audio.speak("- "+option)
             invalid = False
         # quit / exit command listener
         elif answer.find('quit') != -1 or answer.find('exit') != -1:
@@ -166,7 +167,7 @@ class App(ABC):
                     return response
 
         if invalid:
-            glob.mainApp.audio.speak(text="Invalid option, please try again.", name="app_option_invalid")
+            glob.mainApp.audio.speak("Invalid option, please try again.")
 
         response = self.await_response(desired_responses)
         return response

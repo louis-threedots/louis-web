@@ -64,13 +64,11 @@ class Headlines(App):
     def get_category_response(self, prompt, extended_prompt):
         #First time it is called, it shows the extended_prompt
         options = [c for c in self.categories]
-        first_attempt = True
 
-        if first_attempt:
-            glob.mainApp.audio.speak(prompt + extended_prompt)
-            first_attempt = False
-        else:
-            glob.mainApp.audio.speak(prompt)
+        glob.mainApp.audio.speak(prompt)
+        if self.first_attempt:
+            glob.mainApp.audio.speak(extended_prompt)
+            self.first_attempt = False
 
         response = self.await_response(options)
         return response
@@ -81,4 +79,5 @@ class Headlines(App):
 
     def on_start(self):
         self.app_instruction("This will allow you to read the news in braille! To hear your options at any point say \"options\".")
+        self.first_attempt = True
         self.main()

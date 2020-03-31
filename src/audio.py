@@ -1,6 +1,6 @@
 import louis_globals as glob
 import os
-import subprocess
+from hashlib import md5
 
 output_audio = True
 
@@ -8,23 +8,25 @@ class Audio():
 
     def __init__(self):
         # conversion from Google Drive sharing URL to Google Drive Direct Link: https://www.wonderplugin.com/online-tools/google-drive-direct-link-generator/
-        self.audioFiles = {# name: direct link
-            "main_welcome": "https://drive.google.com/uc?export=download&id=1VTikh68z4lV72lxrG-0Gj_RJlOMOdYYh",
-            "main_open_apps": "https://drive.google.com/uc?export=download&id=1FQ9uJKHhu2l9n_60IPANWguzP78wnMSn"
+        self.audioFiles = {# hashed text: direct link
+            "a4d2555256766c278a8e127452489658": "https://drive.google.com/uc?export=download&id=1VTikh68z4lV72lxrG-0Gj_RJlOMOdYYh",
+            "f54c5c9d7a3da333472e691f437f6ef8": "https://drive.google.com/uc?export=download&id=1FQ9uJKHhu2l9n_60IPANWguzP78wnMSn"
         }
 
-    def speak(self, text="", name=""):
+    def speak(self, text):
         
         print('------ AUDIO OUTPUT ------')
         glob.cust_print(text)
         print('--------------------------')
 
+        text_hashed = md5(text.encode('utf-8')).hexdigest()
+
         if output_audio:
-            if name not in self.audioFiles:
+            if text_hashed not in self.audioFiles:
                 glob.cust_print('(There is no audio recording yet.)')
             else:
                 print("speaking")
-                self.playsound(self.audioFiles[name])
+                self.playsound(self.audioFiles[text_hashed])
                 print("speaking done")
 
         return text

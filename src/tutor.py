@@ -44,7 +44,8 @@ class Tutor(App):
                 'indicator': 'a special indicator',
                 'digit': 'a digit'
             }
-            glob.mainApp.audio.speak('What letter is this? This is ' + chartypes_output[chartype] + '.')
+            glob.mainApp.audio.speak('What letter is this? This is:')
+            glob.mainApp.audio.speak(chartypes_output[chartype])
 
             while chances > 0:
                 answer = self.await_response()
@@ -62,22 +63,30 @@ class Tutor(App):
                 elif chartype == 'indicator':
                     correct_answer = c.lower()
                 else: # digit or punctuation
-                    correct_answer = character_dict[c]['pronunciation']
+                    correct_answer = character_dict[c]['display']
 
                 if answer == correct_answer:
-                    glob.mainApp.audio.speak('You correctly answered ' + character_dict[c]['pronunciation'] + '! Moving on to the next question.')
+                    glob.mainApp.audio.speak('You correctly answered:')
+                    glob.mainApp.audio.speak(character_dict[c]['display'])
+                    glob.mainApp.audio.speak("Moving on to the next question.")
                     good_pile.append(c)
                     break
                 else:
                     answer_output = answer
-                    if answer in character_dict: # mainly for 'a' => 'ay'
-                        answer_output = character_dict[answer]['pronunciation']
+                    if answer in character_dict:
+                        answer_output = character_dict[answer]['display']
 
                     chances -= 1
                     if chances > 0:
-                        glob.mainApp.audio.speak("You incorrectly answered " + answer_output + ". You have " + str(chances) + " more chances to respond.")
+                        glob.mainApp.audio.speak("You incorrectly answered:")
+                        glob.mainApp.audio.speak(answer_output)
+                        glob.mainApp.audio.speak("The number of chances you have left is:")
+                        glob.mainApp.audio.speak(str(chances))
                     else:
-                        glob.mainApp.audio.speak("You incorrectly answered " + answer_output + ". You have used all your chances to answer. The correct answer is " + character_dict[c]['pronunciation'])
+                        glob.mainApp.audio.speak("You incorrectly answered:")
+                        glob.mainApp.audio.speak(answer_output)
+                        glob.mainApp.audio.speak("You have used all your chances to answer. The correct answer is:")
+                        glob.mainApp.audio.speak(character_dict[c]['display'])
                         glob.mainApp.audio.speak("I will save this character for later.")
                         bad_pile.append(c)
                         glob.mainApp.audio.speak("Moving on to the next question.")
@@ -86,7 +95,8 @@ class Tutor(App):
 
     def test_done_instruction(self, bad_pile, good_pile):
         score_percentage = round(len(good_pile) * 100 / len(bad_pile + good_pile), 1)
-        glob.mainApp.audio.speak("Testing is done. You got " + str(score_percentage) + " percent right.")
+        glob.mainApp.audio.speak("Testing is done. Your score out of a hundred is:")
+        glob.mainApp.audio.speak(str(score_percentage))
 
         if score_percentage != 100:
             glob.mainApp.audio.speak("Would you like to go through letters you got wrong?")
@@ -95,7 +105,8 @@ class Tutor(App):
                 glob.mainApp.audio.speak("Okay, let's go through the characters you answered wrong. You can move on to the next character by saying next.")
                 for c in bad_pile:
                     self.print_character_all_cells(c)
-                    glob.mainApp.audio.speak("This is " + character_dict[c]['pronunciation'])
+                    glob.mainApp.audio.speak("This is:")
+                    glob.mainApp.audio.speak(character_dict[c]['display'])
                     self.await_response(["next"])
                 glob.mainApp.audio.speak("That were all the characters you answered wrong.")
         else:

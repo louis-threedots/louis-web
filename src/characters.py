@@ -1,5 +1,4 @@
 #! /usr/bin/python3
-import louis_globals as glob
 
 alphabet_dict = {
     'a': {'dots': [1, 0, 0, 0, 0, 0], 'display': 'a'},

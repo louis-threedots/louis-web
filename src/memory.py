@@ -8,10 +8,8 @@ class Memory(App):
     def on_start(self):
         num_cells = len(glob.mainApp.cells)
         if num_cells < 4 or num_cells % 2 != 0:
-            glob.mainApp.audio.speak("""
-                This game is meant to be played with an even number of cells, at least 4.
-                Right now there are """ + str(num_cells) + """ cells connected.
-            """)
+            glob.mainApp.audio.speak("This game is meant to be played with an even number of cells, at least 4. Right now the number of connected cells is:")
+            glob.mainApp.audio.speak(str(num_cells))
             self.on_quit()
         self.dict_idx = str(num_cells)
 
@@ -54,9 +52,9 @@ class Memory(App):
     def have_turn(self, player=0):
         self.num_turns += 1
         if player == 1:
-            glob.mainApp.audio.speak(text="It is now player one's turn.", name="memory_turn_p1")
+            glob.mainApp.audio.speak("It is now player one's turn.")
         elif player == 2:
-            glob.mainApp.audio.speak(text="It is now player two's turn.", name="memory_turn_p2")
+            glob.mainApp.audio.speak("It is now player two's turn.")
         cell_idx1 = self.wait_for_flip()
         cell_idx2 = self.wait_for_flip()
         return cell_idx1, cell_idx2
@@ -65,7 +63,8 @@ class Memory(App):
         char1 = self.field[cell_idx1 - 1]
         char2 = self.field[cell_idx2 - 1]
         if char1 == char2:
-            glob.mainApp.audio.speak("You have found a match! This is the letter " + alphabet_dict[char1]['display'] + ".")
+            glob.mainApp.audio.speak("You have found a match! This is the letter:")
+            glob.mainApp.audio.speak(alphabet_dict[char1]['display'])
             self.score[player] += 1
             self.flipped_cells.append(cell_idx1)
             self.flipped_cells.append(cell_idx2)
@@ -95,17 +94,20 @@ class Memory(App):
     def check_game_done(self, player):
         if sum(self.score) == int(len(self.field) / 2):
             if player == 0:
-                glob.mainApp.audio.speak("You have found all pairs in " + str(self.num_turns) + " turns.")
+                glob.mainApp.audio.speak("The number of turns it took you to find all pairs is:")
+                glob.mainApp.audio.speak(str(self.num_turns))
                 if not self.dict_idx in self.settings['high_scores'] or self.settings['high_scores'][self.dict_idx] > self.num_turns:
                     glob.mainApp.audio.speak("This is a new high score!")
                     self.settings['high_scores'][self.dict_idx] = self.num_turns
                 else:
-                    glob.mainApp.audio.speak("The current high score is " + str(self.settings['high_scores'][self.dict_idx]) + ".")
+                    glob.mainApp.audio.speak("The current high score is:")
+                    glob.mainApp.audio.speak(str(self.settings['high_scores'][self.dict_idx]))
             else:
-                glob.mainApp.audio.speak("""
-                    All pairs have been found. Player 1 has a score of """ + str(self.score[1]) + """
-                    and player 2 has a score of """ + str(self.score[2]) + """.
-                """)
+                glob.mainApp.audio.speak("All pairs have been found.")
+                glob.mainApp.audio.speak("Player 1 has a score of:")
+                glob.mainApp.audio.speak(str(self.score[1]))
+                glob.mainApp.audio.speak("Player 2 has a score of:")
+                glob.mainApp.audio.speak(str(self.score[2]))
                 if self.score[2] > self.score[1]:
                     glob.mainApp.audio.speak("Player 2 has won!")
                 elif self.score[1] > self.score[2]:
@@ -128,7 +130,8 @@ class Memory(App):
             return self.wait_for_flip()
         c = self.field[cell_idx - 1]
         glob.mainApp.cells[cell_idx - 1].print_character(c)
-        glob.mainApp.audio.speak("This is cell " + str(cell_idx))
+        glob.mainApp.audio.speak("This is cell:")
+        glob.mainApp.audio.speak(str(cell_idx))
         self.print_cells_to_terminal()
         return cell_idx
 

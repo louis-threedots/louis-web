@@ -14,10 +14,9 @@ class Riddles(App):
             self.settings['riddle_idx'] = 0
 
         riddle = self.riddles[self.settings['riddle_idx']]
-        glob.mainApp.audio.speak(
-            "Riddle number " + str(self.settings['riddle_idx'] + 1) + ": "
-            + riddle['question']
-        )
+        glob.mainApp.audio.speak("Riddle number:")
+        glob.mainApp.audio.speak(str(self.settings['riddle_idx'] + 1))
+        glob.mainApp.audio.speak(riddle['question'])
 
         self.print_text(riddle['answer'])
         self.settings['riddle_idx'] += 1
