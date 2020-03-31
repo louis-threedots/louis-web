@@ -42,12 +42,12 @@ class Audio():
         glob.cust_print(audioDiv)
         return audioDiv
 
-    def recognize_speech(self, keywords = []):
+    def recognize_speech(self):
         # set up the response object
         response = {
             "success": True,
             "error": None,
             "transcription": "",
         }
-        response["transcription"] = str(input("speech? "))
+        response["transcription"] = str(glob.cust_input())
         return response

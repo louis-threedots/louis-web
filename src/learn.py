@@ -10,39 +10,40 @@ class Learn(App):
         self.learn_category()
 
     def learn_category(self):
-        self.audio.speak("""
+        glob.mainApp.audio.speak("""
             Which of the following categories would you like to learn?
             The alphabet, punctuation, digits, special indicators or contractions?
         """)
 
         reply = self.await_response(["alphabet", "punctuation", "digits", "contractions", "indicators"])
         if "alphabet" in reply:
-            self.audio.speak("Let's learn the lowercase alphabet.")
+            glob.mainApp.audio.speak("Let's learn the lowercase alphabet.")
             learn_chars = alphabet_dict
-            audio_announcement = "This is the letter"
+            audio_announcement, audio_name = "This is the letter", "learn_announce_letter"
         elif "punctuation" in reply:
-            self.audio.speak("Let's learn punctuation characters.")
+            glob.mainApp.audio.speak("Let's learn punctuation characters.")
             learn_chars = punctuation_dict
-            audio_announcement = "This is a"
+            audio_announcement, audio_name = "This is a", "learn_announce_punctuation"
         elif "digits" in reply:
-            self.audio.speak("Let's learn digits.")
+            glob.mainApp.audio.speak("Let's learn digits.")
             learn_chars = digit_dict
-            audio_announcement = "This is the number"
+            audio_announcement, audio_name = "This is the number", "learn_announce_digit"
         elif "contractions" in reply:
-            self.audio.speak("Let's learn contractions.")
+            glob.mainApp.audio.speak("Let's learn contractions.")
             learn_chars = contraction_dict
-            audio_announcement = "This is the contraction"
+            audio_announcement, audio_name = "This is the contraction", "learn_announce_contraction"
         elif "indicators" in reply:
-            self.audio.speak("Let's learn special indicators.")
+            glob.mainApp.audio.speak("Let's learn special indicators.")
             learn_chars = indicator_dict
-            audio_announcement = "This announces a"
+            audio_announcement, audio_name = "This announces a", "learn_announce_indicator"
 
         for c in learn_chars:
             self.print_character_all_cells(c)
-            self.audio.speak(audio_announcement + ' ' + character_dict[c]['pronunciation'])
+            glob.mainApp.audio.speak(text=audio_announcement, name=audio_name)
+            glob.mainApp.audio.speak(text=character_dict[c]['display'], name=('char_'+character_dict[c]['display'].replace(' ', '_')))
             self.await_response(["next"])
 
-        self.audio.speak("That were all the characters. Would you like to learn another category?")
+        glob.mainApp.audio.speak("That were all the characters. Would you like to learn another category?")
         reply = self.await_response(["yes","no"])
         if reply == 'yes':
             self.learn_category()

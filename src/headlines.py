@@ -4,7 +4,8 @@ from arduino import Arduino
 from cell import Cell
 from audio import Audio
 import xml.etree.ElementTree as ET
-import urllib.request
+from urllib.request import urlopen
+# import pyodide
 
 class Headlines(App):
 
@@ -25,7 +26,8 @@ class Headlines(App):
         options = ["next","back","more","again","home"]
         #instructions = "Say \"next\" or \"back\" to go to the next or the previous article, \"more\" if you would like to read more, \"again\" to read the headline again and \"home\" to return to the beginning."
         #Get RSS feed given category -> TODO: url requests need to be handled by JS
-        feed = ET.parse(urllib.request.urlopen("http://newsrss.bbc.co.uk/rss/newsonline_uk_edition/"+category+"/rss.xml"))
+        feed = ET.parse(urlopen("http://newsrss.bbc.co.uk/rss/newsonline_uk_edition/"+category+"/rss.xml"))
+        # feed = ET.parse(pyodide.open_url("https://cors-anywhere.herokuapp.com/http://newsrss.bbc.co.uk/rss/newsonline_uk_edition/"+category+"/rss.xml"))
         root = feed.getroot()
         article_list = list(root.iter("item"))
 
@@ -36,7 +38,7 @@ class Headlines(App):
             response = self.await_response(options)
             if response == "next":
                 if article_ptr + 1 > len(article_list):
-                    self.audio.speak("You have reached the end of the articles in this category.")
+                    glob.mainApp.audio.speak("You have reached the end of the articles in this category.")
                     show = False
                 else:
                     article_ptr += 1
@@ -44,7 +46,7 @@ class Headlines(App):
 
             elif response == "back":
                 if article_ptr - 1 < 0:
-                    self.audio.speak("There are no previous articles")
+                    glob.mainApp.audio.speak("There are no previous articles")
                     show = False
                 else:
                     article_ptr -= 1
@@ -65,10 +67,10 @@ class Headlines(App):
         first_attempt = True
 
         if first_attempt:
-            self.audio.speak(prompt + extended_prompt)
+            glob.mainApp.audio.speak(prompt + extended_prompt)
             first_attempt = False
         else:
-            self.audio.speak(prompt)
+            glob.mainApp.audio.speak(prompt)
 
         response = self.await_response(options)
         return response
@@ -78,6 +80,5 @@ class Headlines(App):
         self.show_headlines(self.categories[category], 0)
 
     def on_start(self):
-        #self.cells[0].print_character("a")
         self.app_instruction("This will allow you to read the news in braille! To hear your options at any point say \"options\".")
         self.main()
