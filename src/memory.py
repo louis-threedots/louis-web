@@ -13,7 +13,8 @@ class Memory(App):
             self.on_quit()
         self.dict_idx = str(num_cells)
 
-        self.app_instruction("""
+        self.instruction = """
+            Welcome to Memory.
             This is the braille version of the traditional Memory card game.
             You can play it with one or two players. The Memory cards are the cells,
             each corresponding to a braille alphabet character.
@@ -29,7 +30,7 @@ class Memory(App):
             In solo mode, the number of turns is recorded, so that you
             can attempt to find all pairs in as little turns as possible.
             When playing together, the app will keep track of the score.
-        """)
+        """
         self.play_memory()
 
     def play_memory(self):

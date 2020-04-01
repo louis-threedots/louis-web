@@ -5,8 +5,11 @@ from characters import *
 class Learn(App):
 
     def on_start(self):
-        # instruction when app started, skip when the user says skip
-        self.app_instruction("Here you will learn the alphabet. You can move on to the next character by saying next.")
+        self.instruction = """
+            Welcome to Learn.
+            Here you will learn the alphabet.
+            You can move on to the next character by saying next.
+        """
         self.learn_category()
 
     def learn_category(self):

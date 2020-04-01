@@ -4,9 +4,10 @@ from audio import Audio
 from cell import Cell
 import louis_globals as glob
 import sys
+import os
 from app import App
 
-#apps
+# apps:
 from riddles import Riddles
 from learn import Learn
 from tutor import Tutor
@@ -16,12 +17,24 @@ from memory import Memory
 class MainApp(App):
 
     def __init__(self):
+        self.name = 'main'
+        # settings
+        filename = self.name.lower() + '_state'
+        self.filepath = os.path.join(os.path.dirname(__file__), 'app_states/' + filename + '.txt')
+        self.settings = self.load_settings()
+
         self.apps = ['riddles', 'learn', 'tutor', 'headlines', 'memory']
+        self.instruction = """
+            Welcome to Louis the brailliant assistant.
+            You can quit louis and apps at any time by saying 'quit' or 'exit'.
+            You can get more information and instructions by saying 'help'.
+            You can hear your voice command options by saying 'options'.
+        """
 
     def on_start(self):
-        self.audio = Audio()
+        self.audio = Audio(self.settings['output_audio'])
         self.arduino, self.cells = self.discover()
-        self.audio.speak("Welcome to Louis the brailliant assistant.")
+        self.app_instruction()
         self.main_menu()
     
     def on_quit(self):
@@ -60,7 +73,7 @@ class MainApp(App):
 
         if current_app is not None:
             glob.mainApp.audio.speak("Opening the application")
-            glob.mainApp.audio.speak(app_name)
+            glob.mainApp.audio.speak(current_app.name)
             current_app.on_start()
         else: # shouldn't occur
             glob.mainApp.audio.speak("I did not recognize the app. Could you try to open the app again?")

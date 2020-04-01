@@ -5,7 +5,7 @@ from cell import Cell
 from audio import Audio
 import xml.etree.ElementTree as ET
 from urllib.request import urlopen
-# import pyodide
+# import pyodide TODO
 
 class Headlines(App):
 
@@ -21,11 +21,10 @@ class Headlines(App):
     }
 
     def show_headlines(self, category, ptr):
-
+        glob.mainApp.audio.speak("We are fetching the articles.")
         article_ptr = ptr
         options = ["next","back","more","again","home"]
-        #instructions = "Say \"next\" or \"back\" to go to the next or the previous article, \"more\" if you would like to read more, \"again\" to read the headline again and \"home\" to return to the beginning."
-        #Get RSS feed given category -> TODO: url requests need to be handled by JS
+        #Get RSS feed given category
         feed = ET.parse(urlopen("http://newsrss.bbc.co.uk/rss/newsonline_uk_edition/"+category+"/rss.xml"))
         # feed = ET.parse(pyodide.open_url("https://cors-anywhere.herokuapp.com/http://newsrss.bbc.co.uk/rss/newsonline_uk_edition/"+category+"/rss.xml"))
         root = feed.getroot()
@@ -74,10 +73,17 @@ class Headlines(App):
         return response
 
     def main(self):
-        category = self.get_category_response("Which category would you like to read? ", "Whenever you want to hear your options say \"options\". ")
+        category = self.get_category_response("Which category would you like to read?", "Whenever you want to hear your options say 'options'. ")
         self.show_headlines(self.categories[category], 0)
 
     def on_start(self):
-        self.app_instruction("This will allow you to read the news in braille! To hear your options at any point say \"options\".")
+        self.instruction = """
+            Welcome to Headlines.
+            This will allow you to read the news in braille!
+            Say 'next' or 'back' to go to the next or the previous article,
+            'more' if you would like to read more,
+            'again' to read the headline again
+            and 'home' to return to the beginning.
+        """
         self.first_attempt = True
         self.main()

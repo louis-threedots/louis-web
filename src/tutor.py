@@ -6,12 +6,12 @@ from app import App
 class Tutor(App):
 
     def on_start(self):
-        # instruction when app started, skip when user says skip
-        self.app_instruction("""
+        self.instruction = """
+            Welcome to Tutor.
             The purpose of this application is to test how much you have learnt from Learn. Let's start testing.
             You can answer the question with any word of your choice that starts with the letter you believe to be the correct answer,
             but avoid using quit or exit unless you want to quit the application.
-        """)
+        """
         self.run_test()
 
     def run_test(self):
