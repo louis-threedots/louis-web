@@ -1,3 +1,4 @@
+import louis_globals as glob
 from app import App
 
 class Riddles(App):
@@ -9,14 +10,13 @@ class Riddles(App):
 
     def next_riddle(self):
         if self.settings['riddle_idx'] >= len(self.riddles):
-            self.audio.speak("Unfortunately we don't have any new riddles at the moment. We hope you enjoyed them!")
+            glob.mainApp.audio.speak("Unfortunately we don't have any new riddles at the moment. We hope you enjoyed them!")
             self.settings['riddle_idx'] = 0
 
         riddle = self.riddles[self.settings['riddle_idx']]
-        self.audio.speak(
-            "Riddle number " + str(self.settings['riddle_idx'] + 1) + ": "
-            + riddle['question']
-        )
+        glob.mainApp.audio.speak("Riddle number:")
+        glob.mainApp.audio.speak(str(self.settings['riddle_idx'] + 1))
+        glob.mainApp.audio.speak(riddle['question'])
 
         self.print_text(riddle['answer'])
         self.settings['riddle_idx'] += 1
@@ -24,7 +24,7 @@ class Riddles(App):
         response = self.await_response(['next', 'previous', 'again'])
         if response == "previous":
             if self.settings['riddle_idx'] - 2 < 0:
-                self.audio.speak("There are no previous riddles. We will instead tell you the last riddle in the library.")
+                glob.mainApp.audio.speak("There are no previous riddles. We will instead tell you the last riddle in the library.")
                 self.settings['riddle_idx'] = len(self.riddles) - 1
             else:
                 self.settings['riddle_idx'] -= 2

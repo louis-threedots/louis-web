@@ -1,3 +1,3 @@
 {
-    "riddle_idx": 2
+    "riddle_idx": 3
 }

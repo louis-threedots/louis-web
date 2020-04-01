@@ -1,14 +1,14 @@
 #! /usr/bin/python3
+import louis_globals as glob
 import time
 import characters
 
 class Cell:
 
-    def __init__(self, index, arduino):
+    def __init__(self, index):
             self.MARGIN = 3
             self.CATCH_SPACING = 90
             self.set_to_default()
-            self.arduino = arduino
             self.index = index
 
     def set_to_default(self):
@@ -133,16 +133,16 @@ class Cell:
     def rotate_to_rel_angle(self, x, rotate=True):
             if rotate:
                 print("Turning to rel angle", x)
-                self.arduino.run_to_rel_pos(x, self.index)
+                glob.mainApp.arduino.run_to_rel_pos(x, self.index)
             self.motor_position += x
             self.motor_position = self.motor_position % 360
 
     def has_finished_rotating(self):
         # Returns true if the cell has finished rendering
-        return self.arduino.ping(self.index)
+        return glob.mainApp.arduino.ping(self.index)
 
     def wait_for_button_press(self):
-        if self.arduino.get_pressed_button() != self.index:
+        if glob.mainApp.arduino.get_pressed_button() != self.index:
             self.wait_for_button_press()
         return True
         #TODO return False after timeout

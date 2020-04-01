@@ -1,3 +1,4 @@
+import louis_globals as glob
 from characters import *
 import random
 from app import App
@@ -18,7 +19,7 @@ class Tutor(App):
         good_pile = []
         bad_pile = []
 
-        self.audio.speak("How would you like the length of the test to be? Please choose one of the following: short, medium or full.")
+        glob.mainApp.audio.speak("How would you like the length of the test to be? Please choose one of the following: short, medium or full.")
         test_length_reply = self.await_response(["short", "medium", "full"])
 
         if "short" in test_length_reply:
@@ -43,12 +44,13 @@ class Tutor(App):
                 'indicator': 'a special indicator',
                 'digit': 'a digit'
             }
-            self.audio.speak('What letter is this? This is ' + chartypes_output[chartype] + '.')
+            glob.mainApp.audio.speak('What letter is this? This is:')
+            glob.mainApp.audio.speak(chartypes_output[chartype])
 
             while chances > 0:
                 answer = self.await_response()
                 if answer == '': # speech recognizer returned error
-                    self.audio.speak("I didn't quite get that. Please respond again.")
+                    glob.mainApp.audio.speak("I didn't quite get that. Please respond again.")
                     continue
 
                 answer = answer.lower().strip()
@@ -61,46 +63,56 @@ class Tutor(App):
                 elif chartype == 'indicator':
                     correct_answer = c.lower()
                 else: # digit or punctuation
-                    correct_answer = character_dict[c]['pronunciation']
+                    correct_answer = character_dict[c]['display']
 
                 if answer == correct_answer:
-                    self.audio.speak('You correctly answered ' + character_dict[c]['pronunciation'] + '! Moving on to the next question.')
+                    glob.mainApp.audio.speak('You correctly answered:')
+                    glob.mainApp.audio.speak(character_dict[c]['display'])
+                    glob.mainApp.audio.speak("Moving on to the next question.")
                     good_pile.append(c)
                     break
                 else:
                     answer_output = answer
-                    if answer in character_dict: # mainly for 'a' => 'ay'
-                        answer_output = character_dict[answer]['pronunciation']
+                    if answer in character_dict:
+                        answer_output = character_dict[answer]['display']
 
                     chances -= 1
                     if chances > 0:
-                        self.audio.speak("You incorrectly answered " + answer_output + ". You have " + str(chances) + " more chances to respond.")
+                        glob.mainApp.audio.speak("You incorrectly answered:")
+                        glob.mainApp.audio.speak(answer_output)
+                        glob.mainApp.audio.speak("The number of chances you have left is:")
+                        glob.mainApp.audio.speak(str(chances))
                     else:
-                        self.audio.speak("You incorrectly answered " + answer_output + ". You have used all your chances to answer. The correct answer is " + character_dict[c]['pronunciation'])
-                        self.audio.speak("I will save this character for later.")
+                        glob.mainApp.audio.speak("You incorrectly answered:")
+                        glob.mainApp.audio.speak(answer_output)
+                        glob.mainApp.audio.speak("You have used all your chances to answer. The correct answer is:")
+                        glob.mainApp.audio.speak(character_dict[c]['display'])
+                        glob.mainApp.audio.speak("I will save this character for later.")
                         bad_pile.append(c)
-                        self.audio.speak("Moving on to the next question.")
+                        glob.mainApp.audio.speak("Moving on to the next question.")
 
         self.test_done_instruction(bad_pile, good_pile)
 
     def test_done_instruction(self, bad_pile, good_pile):
         score_percentage = round(len(good_pile) * 100 / len(bad_pile + good_pile), 1)
-        self.audio.speak("Testing is done. You got " + str(score_percentage) + " percent right.")
+        glob.mainApp.audio.speak("Testing is done. Your score out of a hundred is:")
+        glob.mainApp.audio.speak(str(score_percentage))
 
         if score_percentage != 100:
-            self.audio.speak("Would you like to go through letters you got wrong?")
+            glob.mainApp.audio.speak("Would you like to go through letters you got wrong?")
             reply = self.await_response(["yes","no"])
             if reply == 'yes':
-                self.audio.speak("Okay, let's go through the characters you answered wrong. You can move on to the next character by saying next.")
+                glob.mainApp.audio.speak("Okay, let's go through the characters you answered wrong. You can move on to the next character by saying next.")
                 for c in bad_pile:
                     self.print_character_all_cells(c)
-                    self.audio.speak("This is " + character_dict[c]['pronunciation'])
+                    glob.mainApp.audio.speak("This is:")
+                    glob.mainApp.audio.speak(character_dict[c]['display'])
                     self.await_response(["next"])
-                self.audio.speak("That were all the characters you answered wrong.")
+                glob.mainApp.audio.speak("That were all the characters you answered wrong.")
         else:
-            self.audio.speak("Well done!")
+            glob.mainApp.audio.speak("Well done!")
 
-        self.audio.speak("Do you want to take another test?")
+        glob.mainApp.audio.speak("Do you want to take another test?")
         reply = self.await_response(["yes","no"])
         if reply == 'yes':
             self.run_test()
