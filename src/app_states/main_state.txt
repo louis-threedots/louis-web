@@ -1,3 +1,14 @@
 {
-    "output_audio": true
+    "output_audio": true,
+    "editable": {
+        "contractions": {
+            "name": "contractions",
+            "description": "You can enable or disable contractions in text applications with the following commands:",
+            "value": false,
+            "values": {
+                "enable contractions": true,
+                "disable contractions": false
+            }
+        }
+    }
 }

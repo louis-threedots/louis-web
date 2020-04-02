@@ -2,18 +2,18 @@ import louis_globals as glob
 from abc import ABC, abstractmethod
 import os
 import json
-from characters import indicator_dict, character_dict
+from characters import indicator_dict, contraction_dict, character_dict
 
 # Abstract class that defines the methods amd attributes of Braille Apps.
 class App(ABC):
 
     def __init__(self, name):
         self.name = name
+        self.instruction = "Welcome to " + self.name + ". This application does not have instructions yet."
         # settings
         filename = self.name.lower() + '_state'
         self.filepath = os.path.join(os.path.dirname(__file__), 'app_states/' + filename + '.txt')
         self.settings = self.load_settings()
-        self.instruction = "Welcome to " + self.name + ". This application does not have instructions yet."
 
     @abstractmethod
     def on_start(self):
@@ -59,6 +59,37 @@ class App(ABC):
         # Save app settings to local file system
         with open(self.filepath, 'w') as f:
             f.write(json.dumps(self.settings, indent=4))
+    
+    def edit_settings(self):
+        if 'editable' not in self.settings:
+            glob.mainApp.audio.speak("This app does not have any editable settings.")
+            return
+        
+        glob.mainApp.audio.speak("Which setting would you like to change? Say 'home' to exit the settings menu.")
+        options = [setting['name'] for setting in self.settings['editable'].values()]
+        settings = [setting for setting in self.settings['editable'].values()]
+        response = self.await_response(options + ['home'])
+        if response == 'home':
+            glob.mainApp.audio.speak("Exiting the settings menu.")
+            return
+        
+        setting_idx = options.index(response)
+        setting = settings[setting_idx]
+        
+        glob.mainApp.audio.speak(setting['description'])
+        commands = list(setting['values'].keys())
+        values = [value for value in setting['values'].values()]
+        for command in commands:
+            glob.mainApp.audio.speak("- " + command)
+        response = self.await_response(commands + ['home'])
+        if response == 'home':
+            glob.mainApp.audio.speak("Exiting the settings menu.")
+            return
+        
+        value_idx = commands.index(response)
+        value = values[value_idx]
+        setting['value'] = value
+        glob.mainApp.audio.speak("The setting has been updated. Returning to 'home'.")
 
     def app_instruction(self):
         glob.mainApp.audio.speak(self.instruction)
@@ -82,26 +113,39 @@ class App(ABC):
 
     def print_text(self, text):
         prepared_text = []
-        for i,letter in enumerate(text):
-            if letter not in indicator_dict:
-                if i>=1 and letter.isalpha() and text[i-1].isdigit():
-                    prepared_text.append('LETTER')
-                
-                if letter.isupper():
-                    prepared_text.append('CAPITAL')
-                    letter = letter.lower()
-                elif letter.isdigit():
-                    insert_letter_ind = True
-                    # indicator not necessary when previous char is digit
-                    if i>=1 and text[i-1].isdigit():
-                        insert_letter_ind = False
-                    # indicator not necessary when part of number (e.g. 1,496.2)
-                    if i>=2 and text[i-2].isdigit() and (text[i-1] == '.' or text[i-1] == ','):
-                        insert_letter_ind = False
-                    if insert_letter_ind:
-                        prepared_text.append('NUMBER')
+        i = 0
+        while i < len(text):
+            letter = text[i]
+            if i>=1 and letter.isalpha() and text[i-1].isdigit():
+                prepared_text.append('LETTER')
+            
+            if letter.isupper():
+                prepared_text.append('CAPITAL')
+                letter = letter.lower()
+            elif letter.isdigit():
+                insert_letter_ind = True
+                # indicator not necessary when previous char is digit
+                if i>=1 and text[i-1].isdigit():
+                    insert_letter_ind = False
+                # indicator not necessary when part of number (e.g. 1,496.2)
+                if i>=2 and text[i-2].isdigit() and (text[i-1] == '.' or text[i-1] == ','):
+                    insert_letter_ind = False
+                if insert_letter_ind:
+                    prepared_text.append('NUMBER')
+            
+            if glob.mainApp.settings['editable']['contractions']['value'] == True:
+                found_contraction = False
+                for contraction in contraction_dict:
+                    if text[i:(i + len(contraction))] == contraction:
+                        prepared_text.append(contraction)
+                        i += len(contraction)
+                        found_contraction = True
+                        break
+                if found_contraction:
+                    continue
             
             prepared_text.append(letter)
+            i += 1
 
         to_print = []
         for i in range(0,len(prepared_text)):
@@ -125,7 +169,10 @@ class App(ABC):
 
         for cell in glob.mainApp.cells:
             extra_padding = len(cell.character) - 1
-            dots = character_dict[cell.character]['dots']
+            if cell.character not in character_dict:
+                dots = character_dict['UNKNOWN']['dots']
+            else:
+                dots = character_dict[cell.character]['dots']
             character_row = character_row + '  ' + str(cell.character) + '  '
 
             top_row = top_row + '|' + dots_print[dots[0]] + ' ' + dots_print[dots[3]] + '|' + (' ' * extra_padding)
@@ -154,6 +201,10 @@ class App(ABC):
         # help listener
         elif answer.find('help') != -1:
             self.app_instruction()
+            invalid = False
+        # settings listener
+        elif answer.find('settings') != -1:
+            self.edit_settings()
             invalid = False
 
         if len(desired_responses) == 0:

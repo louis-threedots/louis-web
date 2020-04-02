@@ -46,7 +46,7 @@ punctuation_dict = {
     '(': {'dots': [0, 1, 1, 0, 1, 1], 'display': 'left parenthesis'},
     ')': {'dots': [0, 1, 1, 0, 1, 1], 'display': 'right parenthesis'},
     '\'': {'dots': [0, 0, 1, 0, 0, 0], 'display': 'apostrophe'},
-    '\"': {'dots': [0, 0, 1, 0, 0, 0], 'display': 'quotation mark'}, # TODO check
+    '\"': {'dots': [0, 0, 1, 0, 0, 0], 'display': 'quotation mark'},
     ' ': {'dots': [0, 0, 0, 0, 0, 0], 'display': 'blank space'},
 }
 digit_dict = {
@@ -65,9 +65,21 @@ indicator_dict = {
     'CAPITAL': {'dots': [0, 0, 0, 0, 0, 1], 'display': 'capital'},
     'LETTER': {'dots': [0, 0, 0, 0, 1, 1], 'display': 'letter'},
     'NUMBER': {'dots': [0, 0, 1, 1, 1, 1], 'display': 'number'},
+    'UNKNOWN': {'dots': [1, 1, 1, 1, 1, 1], 'display': 'unknown character'},
 }
 contraction_dict = {
+    'ch': {'dots': [1, 0, 0, 0, 0, 1], 'display': 'ch'},
+    'sh': {'dots': [1, 0, 0, 1, 0, 1], 'display': 'sh'},
+    'th': {'dots': [1, 0, 0, 1, 1, 1], 'display': 'th'},
+    'wh': {'dots': [1, 0, 0, 0, 1, 1], 'display': 'wh'},
     'ou': {'dots': [1, 1, 0, 0, 1, 1], 'display': 'ou'},
+    'st': {'dots': [0, 0, 1, 1, 0, 0], 'display': 'st'},
+    'gh': {'dots': [1, 1, 0, 0, 0, 1], 'display': 'gh'},
+    'ed': {'dots': [1, 1, 0, 1, 0, 1], 'display': 'ed'},
+    'er': {'dots': [1, 1, 0, 1, 1, 1], 'display': 'er'},
+    'ow': {'dots': [0, 1, 0, 1, 0, 1], 'display': 'ow'},
+    'ar': {'dots': [0, 0, 1, 1, 1, 0], 'display': 'ar'},
+    'ing': {'dots': [0, 0, 1, 1, 0, 1], 'display': 'ing'},
 }
 
 character_dict = {**alphabet_dict, **digit_dict, **punctuation_dict, **indicator_dict, **contraction_dict}
@@ -95,7 +107,10 @@ degrees_big = {
 }
 
 def character_degrees(character):
-    list_of_pins = character_dict[character]['dots']
+    if character not in character_dict:
+        list_of_pins = character_dict['UNKNOWN']['dots']
+    else:
+        list_of_pins = character_dict[character]['dots']
     first_three = list_of_pins[:3]
     second_three = list_of_pins[3:]
     first_three_str = ''.join(str(pin) for pin in first_three)
