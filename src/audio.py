@@ -2,16 +2,15 @@ import louis_globals as glob
 import os
 from hashlib import md5
 
-output_audio = True
-
 class Audio():
 
-    def __init__(self):
+    def __init__(self, output_audio):
         # conversion from Google Drive sharing URL to Google Drive Direct Link: https://www.wonderplugin.com/online-tools/google-drive-direct-link-generator/
         self.audioFiles = {# hashed text: direct link
             "a4d2555256766c278a8e127452489658": "https://drive.google.com/uc?export=download&id=1VTikh68z4lV72lxrG-0Gj_RJlOMOdYYh",
             "f54c5c9d7a3da333472e691f437f6ef8": "https://drive.google.com/uc?export=download&id=1FQ9uJKHhu2l9n_60IPANWguzP78wnMSn"
         }
+        self.output_audio = output_audio
 
     def speak(self, text):
         
@@ -21,7 +20,7 @@ class Audio():
 
         text_hashed = md5(text.encode('utf-8')).hexdigest()
 
-        if output_audio:
+        if self.output_audio:
             if text_hashed not in self.audioFiles:
                 glob.cust_print('(There is no audio recording yet.)')
             else:

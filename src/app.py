@@ -11,8 +11,9 @@ class App(ABC):
         self.name = name
         # settings
         filename = self.name.lower() + '_state'
-        self.filepath = os.path.join(os.path.dirname(__file__), 'app_states/' + filename + '.py')
+        self.filepath = os.path.join(os.path.dirname(__file__), 'app_states/' + filename + '.txt')
         self.settings = self.load_settings()
+        self.instruction = "Welcome to " + self.name + ". This application does not have instructions yet."
 
     @abstractmethod
     def on_start(self):
@@ -29,7 +30,7 @@ class App(ABC):
 
     def confirm_quit(self):
         text = "Would you like to quit this application?"
-        if not hasattr(self, 'name'): # main app doesn't
+        if self.name == 'main':
             text = "Would you like to quit louis?"
         glob.mainApp.audio.speak(text)
         response = self.await_response(["yes","no"])
@@ -59,15 +60,8 @@ class App(ABC):
         with open(self.filepath, 'w') as f:
             f.write(json.dumps(self.settings, indent=4))
 
-    def app_instruction(self, instruction):
-        glob.mainApp.audio.speak("Would you like to listen to an instruction for this application?")
-        response = self.await_response(['yes','no'])
-        if response == "yes":
-            glob.mainApp.audio.speak("Welcome to")
-            glob.mainApp.audio.speak(self.name)
-            glob.mainApp.audio.speak(instruction)
-        elif response == "no":
-            glob.mainApp.audio.speak("Skipping instruction.")
+    def app_instruction(self):
+        glob.mainApp.audio.speak(self.instruction)
 
     def get_pressed_button(self):
         # Returns the index of the pressed cell button
@@ -145,6 +139,7 @@ class App(ABC):
 
     def await_response(self, desired_responses = []):
         answer = glob.mainApp.audio.recognize_speech()["transcription"]
+        answer = answer.lower()
         invalid = True
 
         if answer.find("options") != -1:
@@ -156,6 +151,10 @@ class App(ABC):
         elif answer.find('quit') != -1 or answer.find('exit') != -1:
             self.confirm_quit()
             invalid = False
+        # help listener
+        elif answer.find('help') != -1:
+            self.app_instruction()
+            invalid = False
 
         if len(desired_responses) == 0:
             return answer
@@ -166,7 +165,7 @@ class App(ABC):
                     print("You said: " + response)
                     return response
 
-        if invalid:
+        if answer != "" and invalid:
             glob.mainApp.audio.speak("Invalid option, please try again.")
 
         response = self.await_response(desired_responses)
